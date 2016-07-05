@@ -13,6 +13,7 @@ var songDuration;
 var songStartTime;
 var songTimer;
 var skipVotes = [];
+var shuffle = false;
 
 bot.connect("MTY5NjE3MzE2ODY5NDM5NDg4.CfGPaw.B15aJ15rlSKmKrbL2cncLycKhzc");
 
@@ -191,7 +192,8 @@ function playNextSong(kill) {
   }, 1);
   skipVotes = [];
 
-  if (queue.length != 0) {
+  if (shuffle) shuffle();
+  else if (queue.length != 0) {
     nowPlaying = queue[0];
 
     queue.splice(0, 1);
@@ -326,4 +328,31 @@ function formatTime(time) {
   if (seconds < 10) seconds = "0" + seconds;
   if (hours > 0) return hours + ":" + minutes + ":" + seconds;
   else return minutes + ":" + seconds;
+}
+
+bot.chat.registerCommand("-shuffle", function (args, channel) {
+  if (args.length != 1) bot.chat.sendMessage("Invalid arguments! Please use the form -shuffle <on|off>", channel);
+  else if (args[0] == "on") {
+    if (shuffle) bot.chat.sendMessage("Shuffle is already enabled!", channel);
+    else {
+      queue = [];
+      shuffle = true;
+      bot.chat.sendMessage("Shuffle is now enabled!", channel);
+      shuffle();
+    }
+  } else if (args[0] == "off") {
+    if (!shuffle) bot.chat.sendMessage("Shuffle is already disabled!", channel);
+    else {
+      shuffle = false;
+      bot.chat.sendMessage("Shuffle is now disabled!", channel);
+    }
+  } else bot.chat.sendMessage("Invalid arguments! Please use the form -shuffle <on|off>", channel);
+});
+
+function shuffle(err, files) {
+  fs.readdir("music", function () {
+    var id = files[Math.round(Math.random() * files.length - 1)];
+    console.log(id);
+    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968")
+  });
 }
