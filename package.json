@@ -1,0 +1,16 @@
+{
+  "name": "wontonbot",
+  "version": "0.1.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js | bunyan",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yayes2",
+  "license": "ISC",
+  "dependencies": {
+    "DiscordBot": "~0.1.5",
+    "youtube-dl": "^1.11.1"
+  }
+}
