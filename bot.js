@@ -177,13 +177,12 @@ bot.chat.registerCommand("-skip", function (args, channel, rawAuthor, rawMsg) {
     bot.chat.sendMessage("Voted to skip song **" + nowPlaying.title + "**. **" + (3 - skipVotes.length) + "** more votes needed!", channel);
   } else {
     bot.chat.sendMessage("Skipped song **" + nowPlaying.title + "**.", channel);
-    playNextSong(true);
+    player.kill();
   }
 });
 
 function playNextSong(kill) {
   if (kill) {
-    player.kill();
     clearInterval(songTimer);
   }
   songStartTime = new Date().getTime();
@@ -192,7 +191,7 @@ function playNextSong(kill) {
   }, 1);
   skipVotes = [];
 
-  if (shuffle) shuffle();
+  if (shuffle) shuffleFiles();
   else if (queue.length != 0) {
     nowPlaying = queue[0];
 
@@ -239,7 +238,7 @@ function playFile(file) {
   });
 
   player.stdout.once('end', function () {
-    playNextSong(true)
+    playNextSong(true);
   });
 }
 
@@ -331,14 +330,16 @@ function formatTime(time) {
 }
 
 bot.chat.registerCommand("-shuffle", function (args, channel) {
-  if (args.length != 1) bot.chat.sendMessage("Invalid arguments! Please use the form -shuffle <on|off>", channel);
+  if (musicStatus == "off") bot.chat.sendMessage("Not connected to voice! Enable the music player using -music on!", channel);
+  else if (musicStatus == "connecting") bot.chat.sendMessage("Currently connecting to voice! Please wait a few seconds and try again.", channel);
+  else if (args.length != 1) bot.chat.sendMessage("Invalid arguments! Please use the form -shuffle <on|off>", channel);
   else if (args[0] == "on") {
     if (shuffle) bot.chat.sendMessage("Shuffle is already enabled!", channel);
     else {
       queue = [];
       shuffle = true;
       bot.chat.sendMessage("Shuffle is now enabled!", channel);
-      shuffle();
+      shuffleFiles();
     }
   } else if (args[0] == "off") {
     if (!shuffle) bot.chat.sendMessage("Shuffle is already disabled!", channel);
@@ -349,10 +350,61 @@ bot.chat.registerCommand("-shuffle", function (args, channel) {
   } else bot.chat.sendMessage("Invalid arguments! Please use the form -shuffle <on|off>", channel);
 });
 
-function shuffle(err, files) {
-  fs.readdir("music", function () {
-    var id = files[Math.round(Math.random() * files.length - 1)];
-    console.log(id);
-    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968")
+function shuffleFiles() {
+  fs.readdir("music", function (err, files) {
+    var id = files[Math.round(Math.random() * files.length - 1)].split(".")[0];
+    var videoInfo = {};
+
+    youtubeDL.getInfo("http://youtu.be/" + id, function (e, info) {
+      if (e) {
+        console.error("Error downloading video " + id + ":", e);
+        return;
+      }
+
+      videoInfo.id = info.id;
+      videoInfo.title = info.title;
+      videoInfo.duration = {};
+      videoInfo.duration.raw = info.duration;
+      videoInfo.duration.split = info.duration.split(":");
+
+      if (videoInfo.duration.split.length == 3) {
+        videoInfo.duration.hours = parseInt(videoInfo.duration.split[0]);
+        videoInfo.duration.minutes = parseInt(videoInfo.duration.split[1]);
+        videoInfo.duration.seconds = parseInt(videoInfo.duration.split[2]);
+      } else if (videoInfo.duration.split.length == 2) {
+        videoInfo.duration.hours = 0;
+        videoInfo.duration.minutes = parseInt(videoInfo.duration.split[0]);
+        videoInfo.duration.seconds = parseInt(videoInfo.duration.split[1]);
+      } else if (videoInfo.duration.split.length == 1) {
+        videoInfo.duration.hours = 0;
+        videoInfo.duration.minutes = 0;
+        videoInfo.duration.seconds = parseInt(videoInfo.duration.split[0]);
+      }
+
+      videoInfo.duration.t = ((videoInfo.duration.hours * 3600) + (videoInfo.duration.minutes * 60) + videoInfo.duration.seconds) * 1000;
+
+      if (videoInfo.duration.hours >= 1 || videoInfo.duration.minutes > 30) {}
+      else if (info.formats[1].filesize > 100000000) {}
+      else {
+        fs.stat(path.join("music/", videoInfo.id + ".mp3"), function (e) {
+          if (e == null) {
+            songStartTime = new Date().getTime();
+            songTimer = setInterval(function () {
+              songDuration = new Date().getTime() - songStartTime;
+            }, 1);
+            skipVotes = [];
+
+            nowPlaying = videoInfo;
+
+            playFile(nowPlaying.id + ".mp3");
+            bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968");
+          } else if (e.code == "ENOENT") {
+            shuffleFiles();
+            console.log("This shouldn't happen. Congrats, you broke things!");
+          }
+        });
+      }
+    });
+    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968");
   });
 }
