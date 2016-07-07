@@ -199,7 +199,7 @@ function playNextSong(kill) {
     queue.splice(0, 1);
 
     playFile(nowPlaying.id + ".mp3");
-    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968")
+    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "200721172642398209")
   } else {
     nowPlaying = {};
   }
@@ -398,7 +398,7 @@ function shuffleFiles() {
             nowPlaying = videoInfo;
 
             playFile(nowPlaying.id + ".mp3");
-            bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968");
+            bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "200721172642398209");
           } else if (e.code == "ENOENT") {
             shuffleFiles();
             console.log("This shouldn't happen. Congrats, you broke things!");
@@ -406,6 +406,6 @@ function shuffleFiles() {
         });
       }
     });
-    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "161228588262227968");
+    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "200721172642398209");
   });
 }
