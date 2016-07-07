@@ -406,6 +406,5 @@ function shuffleFiles() {
         });
       }
     });
-    bot.chat.sendMessage("Now playing **" + nowPlaying.title + "**.", "200721172642398209");
   });
 }
