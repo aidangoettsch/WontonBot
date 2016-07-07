@@ -68,6 +68,7 @@ bot.chat.registerCommand("-qlex",
 bot.chat.registerCommand("-play", function (args, channel, rawArgs, rawMsg) {
   if (musicStatus == "off") bot.chat.sendMessage("Not connected to voice! Enable the music player using -music on!", channel);
   else if (musicStatus == "connecting") bot.chat.sendMessage("Currently connecting to voice! Please wait a few seconds and try again.", channel);
+  else if (shuffle) bot.chat.sendMessage("Shuffle is currently enabled! Disable it with -shuffle off to queue a song again!.", channel);
   else if (args.length != 1) bot.chat.sendMessage("Invalid arguments! Please follow the form -play <url>!", channel);
   else {
     var videoUrl = args[0];
