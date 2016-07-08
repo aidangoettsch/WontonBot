@@ -228,7 +228,7 @@ function playFile(file) {
   player = spawn('ffmpeg', [
     '-i', path.join("music/", file),
     '-f', 's16le',
-    '-vol', '16',
+    '-vol', '32',
     '-ar', '48000',
     '-ac', '2',
     'pipe:1'
