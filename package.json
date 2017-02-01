@@ -1,0 +1,17 @@
+{
+  "name": "wontonbot",
+  "version": "0.1.0",
+  "description": "A bot that uses wontons.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yayes2",
+  "license": "MIT",
+  "dependencies": {
+    "eris": "^0.4.0",
+    "node-opus": "^0.2.2",
+    "standard": "^8.4.0"
+  }
+}
